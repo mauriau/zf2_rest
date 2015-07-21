@@ -16,7 +16,6 @@ class CountryController extends AbstractActionController
             'countrys' => $this->getCountryTable()->fetchAll(),
         ));
     }
-    var $test;
 
     public function addAction()
     {
