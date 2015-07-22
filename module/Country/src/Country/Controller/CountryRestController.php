@@ -109,7 +109,7 @@ class CountryRestController extends AbstractRestfulController
         } else if (is_string($id)) {
             $country = $this->getCountryTable()->getCountryByAlpha($id)->toArray();
         }
-        if (!empty($fields) && !empty($fields['fields'])) {
+        if (isset($fields['fields']) && !empty($fields['fields'])) {
             $tmpTab = explode(',', $fields['fields']);
             foreach ($country as $key => $value) {
                 if (false === array_search($key, $tmpTab)) {
