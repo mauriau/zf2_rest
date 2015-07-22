@@ -71,6 +71,11 @@ class Country implements InputFilterAwareInterface
         $this->tauxTva = (isset($data['tauxTva'])) ? $data['tauxTva'] : null;
     }
 
+    public function getArrayCopy()
+    {
+        return get_object_vars($this);
+    }
+
     public function toArray()
     {
         return Array(
