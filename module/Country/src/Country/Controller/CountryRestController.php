@@ -9,11 +9,15 @@ use Zend\View\Model\JsonModel;
 use Utils\View\Model\XmlModel;
 use Zend\EventManager\EventManagerInterface;
 
+/**
+ * url to try : 
+ *  get => http://localhost:8000/api/country/8?fields=nomFrFr,alpha3
+ */
 class CountryRestController extends AbstractRestfulController
 {
 
     protected $countryTable;
-    protected $collectionMethod = ['GET'];
+    protected $collectionMethod = ['GET', 'POST'];
     protected $ressourceMethod = ['GET', 'POST', 'PATCH', 'DELETE'];
     protected $acceptCriteria = [
         'Zend\View\Model\JsonModel' => [
@@ -58,88 +62,96 @@ class CountryRestController extends AbstractRestfulController
         return $response;
     }
 
-//    public function getList()
-//    {
-//        $results = $this->getCountryTable()->fetchAll();
-//        $data = array();
-//        foreach ($results as $result) {
-//            $data[] = $result;
-//        }
-//
-//        return new JsonModel(array(
-//            'data' => $data,
-//        ));
-//    }
-
+    /**
+     * return json or xml
+     */
     public function getList()
-    {   // Action used for GET requests without resource Id
-        $viewModel = $this->acceptableViewModelSelector($this->acceptCriteria);
-
-// Potentially vary execution based on model returned
-        if ($viewModel instanceof JsonModel) {
-            return new JsonModel(
-                    ['data' => $this->getListCountry()]
-            );
-        }
-        if ($viewModel instanceof XmlModel) {
-            $countries = array("countries" => array(
-                    'country' => $this->getListCountry()
-            ));
-            return new XmlModel($countries);
-        }
+    {
+//        $viewModel = $this->acceptableViewModelSelector($this->acceptCriteria);
+//        if ($viewModel instanceof JsonModel) {
+        return new JsonModel(array(
+            'param' => $this->getListCountry(),
+            0 => true
+        ));
+//        }
+//        if ($viewModel instanceof XmlModel) {
+//            $countries = array("countries" => array(
+//                    'country' => $this->getListCountry()
+//            ));
+//            return new XmlModel($countries);
+//        }
     }
 
     protected function getListCountry()
     {
         try {
-            $tableGateway = $this->getTablegateway();
+            /** @var $countrys CountryTable   */
             $countrys = $this->getCountryTable()->fetchAll();
             $listCountry = [];
             foreach ($countrys as $country) {
-                $listCountry[] = $country->getArrayCopy();
+                $listCountry[] = $country->toArray();
             }
             return $listCountry;
         } catch (\Exception $e) {
             $response = $this->getResponse();
-//$response->setStatusCode(204);
             return ["error" => $e->getMessage()];
         }
     }
 
     public function get($id)
     {
-        var_dump($id);
-        $country = $this->getCountryTable()->getCountry($id);
-
-        return new JsonModel(array(
-            'data' => $country,
-        ));
+        if (is_null($id) || $id === false) {
+            return false;
+        }
+        $fields = $this->params()->fromQuery();
+        if (is_numeric($id)) {
+            $country = $this->getCountryTable()->getCountryByCode($id)->toArray();
+        } else if (is_string($id)) {
+            $country = $this->getCountryTable()->getCountryByAlpha($id)->toArray();
+        }
+        if (!empty($fields) && !empty($fields['fields'])) {
+            $tmpTab = explode(',', $fields['fields']);
+            foreach ($country as $key => $value) {
+                if (false === array_search($key, $tmpTab)) {
+                    unset($country[$key]);
+                }
+            }
+        }
+        return new JsonModel(array('data' => $country));
     }
 
     public function create($data)
     {
-        $form = new CountryForm();
-        $country = new Country();
-        $form->setInputFilter($country->getInputFilter());
-        $form->setData($data);
-        if ($form->isValid()) {
-            $country->exchangeArray($form->getData());
-            $id = $this->getCountryTable()->saveCountry($country);
-        }
+        try {
+            $country = new Country();
+            $country->exchangeArray($data);
+            $result = $this->countryTable->saveCountry($country);
+            $response = $this->getResponse();
+            $response->setStatusCode(201);
 
-        return $this->get($id);
+            return new JsonModel(['created']);
+        } catch (\Exception $e) {
+            $response = $this->getResponse();
+            $response->setStatusCode(400);
+            return new JsonModel(['error' => $e->getMessage()]);
+        }
     }
 
     public function update($id, $data)
     {
-        $data['id'] = $id;
         $country = $this->getCountryTable()->getCountry($id);
-        $form = new CountryForm();
-        $form->bind($country);
-        $form->setInputFilter($country->getInputFilter());
-        $form->setData($data);
-        if ($form->isValid()) {
-            $id = $this->getCountryTable()->saveCountry($form->getData());
+        try {
+            $country = $this->getCountryTable()->getCountry($id);
+            $country->exchangeArray($data);
+            $result = $this->countryTable->saveCountry($country);
+            $response = $this->getResponse();
+            $response->setStatusCode(201);
+
+            return new JsonModel(['created']);
+        } catch (\Exception $e) {
+            $response = $this->getResponse();
+            $response->setStatusCode(400);
+            return new JsonModel(['error' => $e->getMessage()]);
         }
 
         return $this->get($id);

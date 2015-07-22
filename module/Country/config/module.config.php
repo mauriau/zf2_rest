@@ -30,6 +30,9 @@ return array(
                     'route' => '/api/country[/:id]',
                     'defaults' => array(
                         'controller' => 'Country\Controller\CountryRest',
+                        'constraints' => array(
+                            'id' => '[a-zA-Z0-9_-?]*',
+                        ),
                     ),
                 ),
             ),
@@ -40,20 +43,20 @@ return array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
             'Zend\Log\LoggerAbstractServiceFactory',
         ),
-        'aliases' => array(
-            'translator' => 'MvcTranslator',
-            'ViewXmlStrategy' => 'Utils\View\Strategy\XmlStrategy',
-            'ViewXmlRenderer' => 'Utils\View\Renderer\XmlRenderer'
-        ),
-        'factories' => array(
-            'Utils\View\Strategy\XmlStrategy' => 'Utils\Factory\XmlStrategyFactory',
-            'Utils\View\Renderer\XmlRenderer' => 'Utils\Factory\XmlRendererFactory'
-        ),
+//        'aliases' => array(
+//            'translator' => 'MvcTranslator',
+//            'ViewXmlStrategy' => 'Utils\View\Strategy\XmlStrategy',
+//            'ViewXmlRenderer' => 'Utils\View\Renderer\XmlRenderer'
+//        ),
+//        'factories' => array(
+//            'Utils\View\Strategy\XmlStrategy' => 'Utils\Factory\XmlStrategyFactory',
+//            'Utils\View\Renderer\XmlRenderer' => 'Utils\Factory\XmlRendererFactory'
+//        ),
     ),
     'view_manager' => array(
         'strategies' => array(
             'ViewJsonStrategy',
-            'ViewXmlStrategy'
+//            'ViewXmlStrategy'
         ),
         'abstract_factories' => array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',

@@ -71,9 +71,18 @@ class Country implements InputFilterAwareInterface
         $this->tauxTva = (isset($data['tauxTva'])) ? $data['tauxTva'] : null;
     }
 
-    public function getArrayCopy()
+    public function toArray()
     {
-        return get_object_vars($this);
+        return Array(
+            "id" => $this->id,
+            "alpha2" => utf8_encode($this->alpha2),
+            "alpha3" => utf8_encode($this->alpha3),
+            "code" => $this->code,
+            "devise" => utf8_encode($this->devise),
+            "nomEnGb" => utf8_encode($this->nomEnGb),
+            "nomFrFr" => utf8_encode($this->nomFrFr),
+            "tauxTva" => $this->tauxTva
+        );
     }
 
     public function setInputFilter(InputFilterInterface $inputFilter)
@@ -216,6 +225,86 @@ class Country implements InputFilterAwareInterface
         }
 
         return $this->inputFilter;
+    }
+
+    function getId()
+    {
+        return $this->id;
+    }
+
+    function getCode()
+    {
+        return $this->code;
+    }
+
+    function getAlpha2()
+    {
+        return $this->alpha2;
+    }
+
+    function getAlpha3()
+    {
+        return $this->alpha3;
+    }
+
+    function getNomEnGb()
+    {
+        return $this->nomEnGb;
+    }
+
+    function getNomFrFr()
+    {
+        return $this->nomFrFr;
+    }
+
+    function getDevise()
+    {
+        return $this->devise;
+    }
+
+    function getTauxTva()
+    {
+        return $this->tauxTva;
+    }
+
+    function setId($id)
+    {
+        $this->id = $id;
+    }
+
+    function setCode($code)
+    {
+        $this->code = $code;
+    }
+
+    function setAlpha2($alpha2)
+    {
+        $this->alpha2 = $alpha2;
+    }
+
+    function setAlpha3($alpha3)
+    {
+        $this->alpha3 = $alpha3;
+    }
+
+    function setNomEnGb($nomEnGb)
+    {
+        $this->nomEnGb = $nomEnGb;
+    }
+
+    function setNomFrFr($nomFrFr)
+    {
+        $this->nomFrFr = $nomFrFr;
+    }
+
+    function setDevise($devise)
+    {
+        $this->devise = $devise;
+    }
+
+    function setTauxTva($tauxTva)
+    {
+        $this->tauxTva = $tauxTva;
     }
 
 }

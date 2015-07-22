@@ -2,7 +2,10 @@
 
 namespace Country\Model;
 
+use Zend\Db\Sql\Where;
 use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\Sql\Select;
+use Country\Model\Country;
 
 class CountryTable
 {
@@ -36,7 +39,6 @@ class CountryTable
 
     public function saveCountry(Country $country)
     {
-        var_dump($country);
         $data = array(
             'code' => $country->code,
             'alpha2' => $country->alpha2,
@@ -65,15 +67,31 @@ class CountryTable
 
     public function getCountryByAlpha($alpha)
     {
+        $where = new Where();
+
         if (strlen($alpha) > 2) {
-            $rowset = $this->tableGateway->select(['alpha3' => $alpha]);
-            $row = $rowset->count();
+            $where->equalTo('alpha3', $alpha);
+            $rowset = $this->tableGateway->select();
+            $row = $rowset->current();
         } else {
-            $rowset = $this->tableGateway->select(['alpha2' => $alpha]);
-            $row = $rowset->count();
+            $where->equalTo('alpha2', $alpha);
+            $rowset = $this->tableGateway->select();
+            $row = $rowset->current();
         }
         if (!$row) {
-            throw new Exception("Ne trouve pas l'id $id");
+            throw new Exception("Ne trouve pas l'id $alpha");
+        }
+        return $row;
+    }
+
+    public function getCountryByCode($code)
+    {
+        $where = new Where();
+        $where->equalTo('code', $code);
+        $rowset = $this->tableGateway->select($where);
+        $row = $rowset->current();
+        if (!$row) {
+            throw new \Exception("Could not find row $code");
         }
         return $row;
     }
