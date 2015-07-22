@@ -100,7 +100,7 @@ class CountryRestController extends AbstractRestfulController
 
     public function get($id)
     {
-        if (is_null($id) || $id === false) {
+        if (is_null($id) || false === $id) {
             return false;
         }
         $fields = $this->params()->fromQuery();
@@ -129,7 +129,7 @@ class CountryRestController extends AbstractRestfulController
             $response = $this->getResponse();
             $response->setStatusCode(201);
 
-            return new JsonModel(['created']);
+            return new JsonModel(['success' => true, 'crated' => 'ok']);
         } catch (\Exception $e) {
             $response = $this->getResponse();
             $response->setStatusCode(400);
@@ -139,7 +139,6 @@ class CountryRestController extends AbstractRestfulController
 
     public function update($id, $data)
     {
-        $country = $this->getCountryTable()->getCountry($id);
         try {
             $country = $this->getCountryTable()->getCountry($id);
             $country->exchangeArray($data);
@@ -147,7 +146,7 @@ class CountryRestController extends AbstractRestfulController
             $response = $this->getResponse();
             $response->setStatusCode(201);
 
-            return new JsonModel(['created']);
+            return new JsonModel(['success' => true, 'updated' => 'ok']);
         } catch (\Exception $e) {
             $response = $this->getResponse();
             $response->setStatusCode(400);
